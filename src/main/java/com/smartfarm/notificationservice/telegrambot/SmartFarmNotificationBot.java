@@ -71,11 +71,12 @@ public class SmartFarmNotificationBot extends TelegramLongPollingBot {
     public void sendNotificationToAllSubscribers(IotSensorInstructionDTO sensorInstructionDTO) {
         String notificationText = """
                 💡 The light switcher for unit %s was pressed! Current status: %s
+                
                 💧 The water switcher for unit %s was pressed! Current status: %s
                 """.formatted(sensorInstructionDTO.getFarmUnitId(),
-                sensorInstructionDTO.isSwitchLight() ? "<b>on</b>" : "<b>off</b",
+                sensorInstructionDTO.isSwitchLight() ? "<b>on</b>" : "<b>off</b>",
                 sensorInstructionDTO.getFarmUnitId(),
-                sensorInstructionDTO.isSwitchWater() ? "<b>on</b>" : "<b>off</b");
+                sensorInstructionDTO.isSwitchWater() ? "<b>on</b>" : "<b>off</b>");
 
         ALL_USER_IDS.forEach(chatId -> {
             try {
