@@ -1,0 +1,39 @@
+version: 2.1
+
+workflows:
+  build-and-test:
+    jobs:
+      - build:
+          context: smartfarm
+jobs:
+  build:
+    working_directory: ~/project
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - my-cache-{{ .Branch }}-{{ checksum "pom.xml" }}
+      - run:
+          name: Build executable jar
+          command: mvn -B -DskipTests clean package
+      - run:
+          name: Run Tests
+          command: mvn test
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: my-cache-{{ .Branch }}-{{ checksum "pom.xml" }}
+      - run:
+          name: Build Docker Image
+          command: |
+            mvn docker:build
+      - run:
+          name: Login to Docker Hub
+          command: echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+      - run:
+          name: Push Docker Image
+          command: |
+            mvn docker:push
