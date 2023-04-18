@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  labels:
+    app: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: thebestsmartfarm/notification-service
+          env:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka-service:9092"
+            - name: SPRING_CLOUD_DISCOVERY_ENABLED
+              value: 'false'
+            - name: SPRING_CLOUD_GATEWAY_ENABLED
+              value: 'false'
+            - name: BOT_NAME
+              value: '@SmartFarmNotificationsBot'
+            - name: BOT_TOKEN
+              value: '5898076220:AAFBUSphclzUq1qcizhCmJWf1O3HQiU0FIY'
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
